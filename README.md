@@ -2,7 +2,7 @@
 [![Tests](https://img.shields.io/github/actions/workflow/status/letmesendemail/letmesendemail-php/test-php.yml?label=tests&style=for-the-badge&labelColor=000000)](https://github.com/letmesendemail/letmesendemail-php/actions/workflows/test-php.yml)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/letmesendemail/letmesendemail-php?style=for-the-badge&labelColor=000000)](https://packagist.org/packages/letmesendemail/letmesendemail-php)
 [![Packagist Version](https://img.shields.io/packagist/v/letmesendemail/letmesendemail-php?style=for-the-badge&labelColor=000000)](https://packagist.org/packages/letmesendemail/letmesendemail-php)
-[![License](https://img.shields.io/github/license/letmesendemail/letmesendemail-php?color=9cf&style=for-the-badge&labelColor=000000)](https://github.com/letmesendemail/letmesendemail-php/blob/master/LICENSE)
+[![License](https://img.shields.io/github/license/letmesendemail/letmesendemail-php?color=9cf&style=for-the-badge&labelColor=000000&cache=v1)](https://github.com/letmesendemail/letmesendemail-php/blob/master/LICENSE)
 
 The official PHP SDK for the [letmesend.email](https://letmesend.email/) API.
 
