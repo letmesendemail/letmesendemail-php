@@ -1,0 +1,39 @@
+name: PHP CI
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        php-version: [8.1, 8.2, 8.3, 8.4, 8.5]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, intl, pcntl
+          ini-values: post_max_size=256M, memory_limit=2G
+          coverage: none
+
+      - name: Validate composer.json
+        run: composer validate --strict
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Run PHP-CS-Fixer
+        run: vendor/bin/php-cs-fixer fix --dry-run --diff --sequential
+
+      - name: Run Pest tests
+        run: vendor/bin/pest --colors=always

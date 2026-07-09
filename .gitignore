@@ -1,0 +1,71 @@
+# Composer
+/vendor/
+composer.lock
+
+# PHPUnit
+.phpunit.cache/
+coverage/
+coverage.xml
+
+# Pest
+.pest.cache/
+
+# PHPStan
+phpstan.neon.cache
+.phpstan/
+
+# Psalm
+.psalm/
+psalm-baseline.xml
+
+# Rector
+rector.cache
+
+# IDE
+.idea/
+.vscode/
+*.code-workspace
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.*
+!.env.example
+
+# Build artifacts
+/build/
+/dist/
+
+# Cache
+.cache/
+.php-cs-fixer.cache
+
+# Temporary files
+tmp/
+temp/
+
+# Archive files
+*.zip
+*.tar
+*.gz
+
+# Local testing applications
+/test-app/
+/sandbox/
+/playground/
+/examples/vendor/
+
+# Generated documentation
+/docs/build/
+
+# Infection mutation testing
+.infection/
+
+# Xdebug profiling
+cachegrind.out.*
