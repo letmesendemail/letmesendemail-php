@@ -41,7 +41,7 @@ declare(strict_types=1);
 
 function loadFixture(string $path): array
 {
-    $fixturePath = dirname(__DIR__) . '/Fixtures/data/api-data/' . $path;
+    $fixturePath = dirname(__DIR__) . '/tests/Fixtures/data/api-data/' . $path;
 
     if (!file_exists($fixturePath)) {
         throw new RuntimeException("Fixture not found: {$fixturePath}");
