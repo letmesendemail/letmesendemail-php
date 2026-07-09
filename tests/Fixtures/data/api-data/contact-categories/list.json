@@ -1,0 +1,43 @@
+{
+    "request": {
+        "path": "<base-url>/contact-categories",
+        "method": "GET",
+        "parameters": {
+            "per_page": {
+                "type": "number",
+                "description": "Limit result per page"
+            },
+            "after": {
+                "type": "string",
+                "description": "Fetch items that come after the specified cursor. Do not use with before cursor."
+            },
+            "before": {
+                "type": "string",
+                "description": "Fetch items that come before the specified cursor. Do not use with after cursor"
+            }
+        }
+    },
+    "response": {
+        "status": 200,
+        "data": {
+            "data": [
+                {
+                    "id": "01kvtkgnwnwszdgs6w4ks0cqy3",
+                    "name": "quisquam temporibus ullam",
+                    "slug": "quisquam-temporibus-ullam"
+                },
+                {
+                    "id": "01kvtkgnwmksj0khdcbv31r2cy",
+                    "name": "nisi quam officiis",
+                    "slug": "nisi-quam-officiis"
+                }
+            ],
+            "pagination": {
+                "has_more": true,
+                "per_page": 2,
+                "fetched": 2,
+                "total": 100
+            }
+        }
+    }
+}

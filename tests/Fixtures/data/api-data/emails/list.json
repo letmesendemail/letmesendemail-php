@@ -1,0 +1,55 @@
+{
+    "request": {
+        "path": "<base-url>/emails",
+        "method": "GET",
+        "parameters": {
+            "per_page": {
+                "type": "number",
+                "description": "Limit result per page"
+            },
+            "after": {
+                "type": "string",
+                "description": "Fetch items that come after the specified cursor. Do not use with before cursor."
+            },
+            "before": {
+                "type": "string",
+                "description": "Fetch items that come before the specified cursor. Do not use with after cursor"
+            }
+        }
+    },
+    "response": {
+        "status": 200,
+        "data": {
+            "data": [
+                {
+                    "id": "01kvtb8c6xh94vdsh633t8m83r",
+                    "status": "queued",
+                    "subject": "Eos autem ducimus soluta hic at est ipsam.",
+                    "event_name": null,
+                    "type": "broadcast",
+                    "created_at": "2026-06-23T13:38:30.000+00:00",
+                    "sent_at": null,
+                    "recipients_count": 1,
+                    "attachments_count": 0
+                },
+                {
+                    "id": "01kvtb8c6wx6t48rjmdmbknwne",
+                    "status": "sent",
+                    "subject": "Ipsam numquam nostrum unde veritatis.",
+                    "event_name": null,
+                    "type": "broadcast",
+                    "created_at": "2026-06-23T13:38:30.000+00:00",
+                    "sent_at": null,
+                    "recipients_count": 1,
+                    "attachments_count": 0
+                }
+            ],
+            "pagination": {
+                "has_more": true,
+                "per_page": 2,
+                "fetched": 2,
+                "total": 100
+            }
+        }
+    }
+}

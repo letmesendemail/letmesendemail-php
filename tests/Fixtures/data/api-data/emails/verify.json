@@ -1,0 +1,27 @@
+{
+    "description": "Email address can be verified via api",
+    "request": {
+        "path": "/emails/verify",
+        "method": "POST",
+        "parameters": [],
+        "body": {
+            "email": "john+doe@gmail.com"
+        }
+    },
+    "response": {
+        "status": 200,
+        "data": {
+            "email": "john+doe@gmail.com",
+            "score": 40,
+            "status": "valid",
+            "domain_exists": true,
+            "disposable": false,
+            "role_based": false,
+            "has_mailbox": true,
+            "receive_email": true,
+            "mx_records": true,
+            "valid_syntax": true,
+            "belongs_to": "john@gmail.com"
+        }
+    }
+}

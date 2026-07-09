@@ -1,0 +1,57 @@
+{
+    "request": {
+        "path": "<base-url>/domains",
+        "method": "GET",
+        "parameters": {
+            "per_page": {
+                "type": "number",
+                "description": "Limit result per page"
+            },
+            "after": {
+                "type": "string",
+                "description": "Fetch items that come after the specified cursor. Do not use with before cursor."
+            },
+            "before": {
+                "type": "string",
+                "description": "Fetch items that come before the specified cursor. Do not use with after cursor"
+            }
+        }
+    },
+    "response": {
+        "status": 200,
+        "data": {
+            "data": [
+                {
+                    "id": "01kvv5tbpcaj5v9k062fr8w31e",
+                    "domain_name": "99xshanahan.com",
+                    "status": "verified",
+                    "created_at": "2026-06-23T21:22:42.000+00:00"
+                },
+                {
+                    "id": "01kvv5tbpcaj5v9k062fr8w31c",
+                    "domain_name": "t01ullrich.com",
+                    "status": "verified",
+                    "created_at": "2026-06-23T21:22:42.000+00:00"
+                },
+                {
+                    "id": "01kvv5tbpcaj5v9k062fr8w31a",
+                    "domain_name": "xxmwalter.biz",
+                    "status": "verified",
+                    "created_at": "2026-06-23T21:22:42.000+00:00"
+                },
+                {
+                    "id": "01kvv5tbpbe54v23m864k7xtty",
+                    "domain_name": "gntstamm.info",
+                    "status": "verified",
+                    "created_at": "2026-06-23T21:22:42.000+00:00"
+                }
+            ],
+            "pagination": {
+                "has_more": false,
+                "per_page": 20,
+                "fetched": 4,
+                "total": 4
+            }
+        }
+    }
+}

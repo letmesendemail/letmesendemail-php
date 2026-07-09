@@ -1,0 +1,91 @@
+{
+    "request": {
+        "path": "<base-url>/emails",
+        "method": "POST",
+        "parameters": [],
+        "headers": {
+            "Idempotency-Key": "Prevents duplicate emails on retries using a unique key and is optional."
+        },
+        "body": {
+            "type": "broadcast",
+            "event_name": "user.created",
+            "from": "XYZ Inc. <info@companydomain.com>",
+            "to": [
+                "john@example.com"
+            ],
+            "reply_to": [
+                "reply@companydomain.com"
+            ],
+            "cc": [
+                "jane@example.com"
+            ],
+            "bcc": [
+                "jim@example.com"
+            ],
+            "email_topic_id": "01kvtdgbdwdx5pcjh0s6xxawj8",
+            "headers": {
+                "X-Custom-Header": "Header Value"
+            },
+            "subject": "Subject",
+            "template_id": "<unique-id>",
+            "template_variables": [
+                {
+                    "key": "USER_FIRST_NAME",
+                    "type": "string",
+                    "value": "John"
+                },
+                {
+                    "key": "USER_LAST_NAME",
+                    "type": "string",
+                    "value": "Doe"
+                },
+                {
+                    "key": "ORDER_NUMBER",
+                    "type": "number",
+                    "value": 12345
+                }
+            ]
+        },
+        "body-enums": {
+            "type": [
+                "broadcast",
+                "transactional"
+            ],
+            "attachments.*.content_disposition": [
+                "inline",
+                "attachment"
+            ]
+        },
+        "body-optional": [
+            "event_name",
+            "attachments",
+            "headers",
+            "email_topic_id",
+            "cc",
+            "bcc",
+            "reply_to"
+        ],
+        "body-restrictions": [
+            "email addresses in to, cc, bcc, on in reply_to can be provided in array of `emailone@example.com` or array of `John Doe <emailone@example.com>` format",
+            "attachments.*.path & attachments.*.content can not be used together. Provide either path (url of the file) or Base64 encoded content of the file"
+        ]
+    },
+    "response": {
+        "status": 200,
+        "data": {
+            "id": "01kvtdgbevwnebwr82fqwh0x73",
+            "status": "accepted",
+            "emails": [
+                "cornelius97@example.com",
+                "elyse40@example.net"
+            ],
+            "restricted_emails": []
+        },
+        "data-enums": {
+            "status": [
+                "accepted",
+                "pending_scan"
+            ]
+        }
+    }
+}

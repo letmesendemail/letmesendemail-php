@@ -1,0 +1,10 @@
+{
+    "status": 401,
+    "response": {
+        "status": "error",
+        "name": "domain_unverified",
+        "message": "Domain unverified.",
+        "errors": [],
+        "code": 401
+    }
+}

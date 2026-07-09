@@ -1,0 +1,19 @@
+{
+    "request": {
+        "path": "<base-url>/contact-categories/01kvtkq34gc5zqbxpyw90q4sk6",
+        "method": "PUT",
+        "parameters": [],
+        "body": {
+            "name": "New Name",
+            "slug": "new-name"
+        }
+    },
+    "response": {
+        "status": 200,
+        "data": {
+            "id": "01kvtkq34gc5zqbxpyw90q4sk6",
+            "name": "New Name",
+            "slug": "new-name"
+        }
+    }
+}

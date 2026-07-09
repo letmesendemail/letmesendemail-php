@@ -1,0 +1,14 @@
+{
+    "request": {
+        "path": "<base-url>/email-topics/01kvtsgfdq4xw54vcvqw0ae68n",
+        "method": "DELETE",
+        "parameters": []
+    },
+    "response": {
+        "status": 200,
+        "data": {
+            "status": "success",
+            "message": "Email category deleted"
+        }
+    }
+}

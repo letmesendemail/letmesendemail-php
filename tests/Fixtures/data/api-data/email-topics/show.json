@@ -1,0 +1,19 @@
+{
+    "request": {
+        "path": "<base-url>/email-topics/01kvtsgf9e96nnj98nxsac751r",
+        "method": "GET",
+        "parameters": []
+    },
+    "response": {
+        "status": 200,
+        "data": {
+            "id": "01kvtsgf9e96nnj98nxsac751r",
+            "name": "Billing Notifications",
+            "slug": "billing-notifications-y4w1v",
+            "description": "Cumque at adipisci dignissimos molestias laudantium tempora aliquam quia.",
+            "auto_subscribe": false,
+            "public": false,
+            "created_at": "2026-06-23T17:47:35.000+00:00"
+        }
+    }
+}

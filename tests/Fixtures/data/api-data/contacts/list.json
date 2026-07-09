@@ -1,0 +1,200 @@
+{
+    "request": {
+        "path": "<base-url>/contacts",
+        "method": "GET",
+        "parameters": []
+    },
+    "response": {
+        "status": 200,
+        "data": {
+            "data": [
+                {
+                    "id": "01kvtsch4xnh5wp40eqngasdcv",
+                    "email": "cole.lura@example.net",
+                    "first_name": "Bradly",
+                    "last_name": "Cole",
+                    "phone": "+14304833356",
+                    "is_globally_unsubscribed": false,
+                    "created_at": "2026-06-23T17:45:26.000+00:00"
+                },
+                {
+                    "id": "01kvtsch4xnh5wp40eqngasdcs",
+                    "email": "thiel.nolan@example.org",
+                    "first_name": "Libbie",
+                    "last_name": "Ryan",
+                    "phone": "+14259816664",
+                    "is_globally_unsubscribed": false,
+                    "created_at": "2026-06-23T17:45:26.000+00:00"
+                },
+                {
+                    "id": "01kvtsch4w41089fcf2k6b5793",
+                    "email": "greg27@example.net",
+                    "first_name": "Joanne",
+                    "last_name": "Jacobs",
+                    "phone": null,
+                    "is_globally_unsubscribed": false,
+                    "created_at": "2026-06-23T17:45:26.000+00:00"
+                },
+                {
+                    "id": "01kvtsch4v14f6xsfw2n1kwp39",
+                    "email": "lynch.kendrick@example.org",
+                    "first_name": "Brian",
+                    "last_name": "McKenzie",
+                    "phone": null,
+                    "is_globally_unsubscribed": false,
+                    "created_at": "2026-06-23T17:45:26.000+00:00"
+                },
+                {
+                    "id": "01kvtsch4tw42c67nvp2417gdf",
+                    "email": "powlowski.kelly@example.net",
+                    "first_name": "Joseph",
+                    "last_name": "Brown",
+                    "phone": null,
+                    "is_globally_unsubscribed": false,
+                    "created_at": "2026-06-23T17:45:26.000+00:00"
+                },
+                {
+                    "id": "01kvtsch4sjhgb0h4qdna17wzy",
+                    "email": "nschimmel@example.net",
+                    "first_name": "Eunice",
+                    "last_name": "Batz",
+                    "phone": "+16163659407",
+                    "is_globally_unsubscribed": false,
+                    "created_at": "2026-06-23T17:45:26.000+00:00"
+                },
+                {
+                    "id": "01kvtsch4r1m0yk42sxg4p08f2",
+                    "email": "linda67@example.net",
+                    "first_name": "Michale",
+                    "last_name": "Hessel",
+                    "phone": "+15598710334",
+                    "is_globally_unsubscribed": false,
+                    "created_at": "2026-06-23T17:45:26.000+00:00"
+                },
+                {
+                    "id": "01kvtsch4qphstc37rc1p2d6aw",
+                    "email": "koss.mohammed@example.com",
+                    "first_name": "Jay",
+                    "last_name": "Witting",
+                    "phone": "+19546560480",
+                    "is_globally_unsubscribed": false,
+                    "created_at": "2026-06-23T17:45:26.000+00:00"
+                },
+                {
+                    "id": "01kvtsch4pwcd2b57c2b551tm8",
+                    "email": "erin14@example.org",
+                    "first_name": "Maximo",
+                    "last_name": "Stamm",
+                    "phone": null,
+                    "is_globally_unsubscribed": false,
+                    "created_at": "2026-06-23T17:45:26.000+00:00"
+                },
+                {
+                    "id": "01kvtsch4nrbdmzhfn2dv9g1ec",
+                    "email": "kberge@example.org",
+                    "first_name": "Mariane",
+                    "last_name": "Wisoky",
+                    "phone": null,
+                    "is_globally_unsubscribed": false,
+                    "created_at": "2026-06-23T17:45:26.000+00:00"
+                },
+                {
+                    "id": "01kvtsch4m7er8eqm917b6ckzg",
+                    "email": "kkreiger@example.com",
+                    "first_name": "Aubree",
+                    "last_name": "Kozey",
+                    "phone": null,
+                    "is_globally_unsubscribed": false,
+                    "created_at": "2026-06-23T17:45:26.000+00:00"
+                },
+                {
+                    "id": "01kvtsch4m7er8eqm917b6ckze",
+                    "email": "halvorson.antonette@example.net",
+                    "first_name": "Keyon",
+                    "last_name": "Feil",
+                    "phone": "+12037248652",
+                    "is_globally_unsubscribed": false,
+                    "created_at": "2026-06-23T17:45:26.000+00:00"
+                },
+                {
+                    "id": "01kvtsch4kj7e4j26fanqz5nqb",
+                    "email": "raymundo.wintheiser@example.com",
+                    "first_name": "Marjory",
+                    "last_name": "Swaniawski",
+                    "phone": "+15392151187",
+                    "is_globally_unsubscribed": false,
+                    "created_at": "2026-06-23T17:45:26.000+00:00"
+                },
+                {
+                    "id": "01kvtsch4j0xsd23wzbz9nc7wh",
+                    "email": "gtowne@example.net",
+                    "first_name": "Lowell",
+                    "last_name": "Beer",
+                    "phone": null,
+                    "is_globally_unsubscribed": false,
+                    "created_at": "2026-06-23T17:45:26.000+00:00"
+                },
+                {
+                    "id": "01kvtsch4h5fwrhc06f9wbemfr",
+                    "email": "luciano.bergnaum@example.net",
+                    "first_name": "Colleen",
+                    "last_name": "Nienow",
+                    "phone": "+18024283510",
+                    "is_globally_unsubscribed": false,
+                    "created_at": "2026-06-23T17:45:26.000+00:00"
+                },
+                {
+                    "id": "01kvtsch4ggf9xfbnw0begwb1k",
+                    "email": "orion.walsh@example.org",
+                    "first_name": "Jasmin",
+                    "last_name": "Bruen",
+                    "phone": null,
+                    "is_globally_unsubscribed": false,
+                    "created_at": "2026-06-23T17:45:26.000+00:00"
+                },
+                {
+                    "id": "01kvtsch4fm1kx1eqzqhc8v4v0",
+                    "email": "aolson@example.net",
+                    "first_name": "Cindy",
+                    "last_name": "Ritchie",
+                    "phone": "+14404904419",
+                    "is_globally_unsubscribed": false,
+                    "created_at": "2026-06-23T17:45:26.000+00:00"
+                },
+                {
+                    "id": "01kvtsch4eq3mwha9hcys9h32m",
+                    "email": "npaucek@example.com",
+                    "first_name": "Reyes",
+                    "last_name": "Leuschke",
+                    "phone": "+14584233935",
+                    "is_globally_unsubscribed": false,
+                    "created_at": "2026-06-23T17:45:26.000+00:00"
+                },
+                {
+                    "id": "01kvtsch4d0j73ayc98yadqvmr",
+                    "email": "reanna17@example.com",
+                    "first_name": "Alycia",
+                    "last_name": "Boehm",
+                    "phone": "+15744882476",
+                    "is_globally_unsubscribed": false,
+                    "created_at": "2026-06-23T17:45:26.000+00:00"
+                },
+                {
+                    "id": "01kvtsch4d0j73ayc98yadqvmp",
+                    "email": "oda94@example.com",
+                    "first_name": "Esteban",
+                    "last_name": "Braun",
+                    "phone": "+14428174570",
+                    "is_globally_unsubscribed": false,
+                    "created_at": "2026-06-23T17:45:26.000+00:00"
+                }
+            ],
+            "pagination": {
+                "has_more": true,
+                "per_page": 20,
+                "fetched": 20,
+                "total": 100
+            }
+        }
+    }
+}

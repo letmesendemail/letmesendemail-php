@@ -1,0 +1,10 @@
+{
+    "status": 404,
+    "response": {
+        "status": "error",
+        "name": "domain_not_found",
+        "message": "Domain not found.",
+        "errors": [],
+        "code": 404
+    }
+}

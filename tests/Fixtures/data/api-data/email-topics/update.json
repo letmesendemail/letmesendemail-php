@@ -1,0 +1,32 @@
+{
+    "request": {
+        "path": "<base-url>/email-topics/01kvtsgfcbte0npnqkj8kep642",
+        "method": "PUT",
+        "parameters": [],
+        "body": {
+            "name": "New Name",
+            "description": "Updated description",
+            "public": true
+        }
+    },
+    "response": {
+        "status": 200,
+        "data": {
+            "id": "01kvtsgfcbte0npnqkj8kep642",
+            "name": "New Name",
+            "slug": "new-name",
+            "description": "Updated description",
+            "auto_subscribe": true,
+            "public": true,
+            "created_at": "2026-06-23T17:47:35.000+00:00",
+            "domain": {
+                "id": "01kvtsgfcaxn6pf9788mpxv2rw",
+                "name": "97ubednar.com"
+            }
+        },
+        "data-comments": [
+            "domin.id will be optional and only provide if email topic is attached to domain",
+            "domin.name will be optional and only provide if email topic is attached to domain"
+        ]
+    }
+}

@@ -1,0 +1,38 @@
+{
+    "request": {
+        "path": "<base-url>/email-topics",
+        "method": "GET",
+        "parameters": []
+    },
+    "response": {
+        "status": 200,
+        "data": {
+            "data": [
+                {
+                    "id": "01kvtsgf7tteramxbzts6b0f5v",
+                    "name": "Marketing Promotions",
+                    "slug": "marketing-promotions-i9izr",
+                    "description": "Repellat et dolorem sequi saepe.",
+                    "auto_subscribe": false,
+                    "public": false,
+                    "created_at": "2026-06-23T17:47:35.000+00:00"
+                },
+                {
+                    "id": "01kvtsgf7tteramxbzts6b0f5t",
+                    "name": "Marketing Promotions",
+                    "slug": "marketing-promotions-jh9m8",
+                    "description": "Et eos voluptatibus aspernatur qui hic blanditiis pariatur.",
+                    "auto_subscribe": false,
+                    "public": false,
+                    "created_at": "2026-06-23T17:47:35.000+00:00"
+                }
+            ],
+            "pagination": {
+                "has_more": true,
+                "per_page": 2,
+                "fetched": 2,
+                "total": 4
+            }
+        }
+    }
+}

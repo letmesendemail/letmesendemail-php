@@ -1,0 +1,13 @@
+{
+    "request": {
+        "path": "<base-url>/domains/verify",
+        "method": "POST",
+        "parameters": []
+    },
+    "response": {
+        "status": 200,
+        "data": {
+            "status": "verified"
+        }
+    }
+}

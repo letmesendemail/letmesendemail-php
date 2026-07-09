@@ -1,0 +1,13 @@
+{
+    "request": {
+        "path": "<base-url>/contact-categories/01kvtmr3evcs2brxp2vcztd102",
+        "method": "DELETE",
+        "parameters": []
+    },
+    "response": {
+        "status": 200,
+        "data": {
+            "status": "success"
+        }
+    }
+}

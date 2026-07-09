@@ -1,0 +1,10 @@
+{
+    "status": 429,
+    "response": {
+        "status": "error",
+        "name": "monthly_quote_exceeded",
+        "message": "Monthly quote reached",
+        "errors": [],
+        "code": 429
+    }
+}

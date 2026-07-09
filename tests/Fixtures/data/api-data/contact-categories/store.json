@@ -1,0 +1,18 @@
+{
+    "request": {
+        "path": "<base-url>/contact-categories",
+        "method": "POST",
+        "parameters": [],
+        "body": {
+            "name": "New Name"
+        }
+    },
+    "response": {
+        "status": 200,
+        "data": {
+            "id": "01kvtkm3x5tpyhyw7xcnqf32rj",
+            "name": "New Name",
+            "slug": "new-name"
+        }
+    }
+}

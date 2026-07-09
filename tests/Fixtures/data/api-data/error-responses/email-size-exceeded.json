@@ -1,0 +1,10 @@
+{
+    "status": 413,
+    "response": {
+        "status": "error",
+        "name": "email_size_exceeded",
+        "message": "Email size exceeded.",
+        "errors": [],
+        "code": 413
+    }
+}

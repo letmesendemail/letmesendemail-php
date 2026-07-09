@@ -1,0 +1,86 @@
+{
+    "request": {
+        "path": "<base-url>/emails",
+        "method": "POST",
+        "parameters": [],
+        "headers": {
+            "Idempotency-Key": "Prevents duplicate emails on retries using a unique key and is optional."
+        },
+        "body": {
+            "type": "broadcast",
+            "event_name": "user.created",
+            "from": "XYZ Inc. <info@companydomain.com>",
+            "to": [
+                "john@example.com"
+            ],
+            "reply_to": [
+                "reply@companydomain.com"
+            ],
+            "cc": [
+                "jane@example.com"
+            ],
+            "bcc": [
+                "jim@example.com"
+            ],
+            "email_topic_id": "<ulid>",
+            "subject": "Subject",
+            "html": "<p>Text Message</p>",
+            "text": "Text Message",
+            "headers": {
+                "X-Custom-Header": "Header Value"
+            },
+            "attachments": [
+                {
+                    "type": "path",
+                    "name": "filename.pdf",
+                    "mime": "application/pdf",
+                    "content_id": "<content-id>",
+                    "content_disposition": "<string>",
+                    "download_url": "<download-url>"
+                }
+            ]
+        },
+        "body-enums": {
+            "type": [
+                "broadcast",
+                "transactional"
+            ],
+            "attachments.*.content_disposition": [
+                "inline",
+                "attachment"
+            ]
+        },
+        "body-optional": [
+            "event_name",
+            "attachments",
+            "headers",
+            "email_topic_id",
+            "cc",
+            "bcc",
+            "reply_to"
+        ],
+        "body-restrictions": [
+            "email addresses in to, cc, bcc, on in reply_to can be provided in array of `emailone@example.com` or array of `John Doe <emailone@example.com>` format",
+            "attachments.*.path & attachments.*.content can not be used together. Provide either path (url of the file) or Base64 encoded content of the file"
+        ]
+    },
+    "response": {
+        "status": 200,
+        "data": {
+            "id": "01kvv5a6xk9qd6y2egeae8w76e",
+            "status": "pending_scan",
+            "emails": [
+                "john@example.com",
+                "jane@example.com",
+                "jim@example.com"
+            ],
+            "restricted_emails": []
+        },
+        "data-enums": {
+            "status": [
+                "accepted",
+                "pending_scan"
+            ]
+        }
+    }
+}
