@@ -1,6 +1,5 @@
 {
     "name": "letmesendemail/letmesendemail-php",
-    "version": "0.3.0",
     "description": "letmesend.email PHP SDK.",
     "keywords": [
         "php",
