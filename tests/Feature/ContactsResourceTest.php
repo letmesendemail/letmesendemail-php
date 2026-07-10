@@ -8,6 +8,7 @@ use LetMeSendEmail\Http\TransportInterface;
 use LetMeSendEmail\Resources\ContactsResource;
 use LetMeSendEmail\Responses\ContactListResponse;
 use LetMeSendEmail\Responses\ContactResponse;
+use LetMeSendEmail\Responses\ContactUpdateResponse;
 use LetMeSendEmail\Responses\StatusResponse;
 use Tests\TestCase;
 
@@ -114,7 +115,7 @@ test('update sends PUT to /contacts/{id} and returns response', function () {
         lastName: 'Doe',
     );
 
-    expect($response)->toBeInstanceOf(ContactResponse::class);
+    expect($response)->toBeInstanceOf(ContactUpdateResponse::class);
     expect($response->getId())->toBe($contactId);
 });
 

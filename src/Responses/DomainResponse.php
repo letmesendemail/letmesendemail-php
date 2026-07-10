@@ -11,6 +11,9 @@ final class DomainResponse
     private string $status;
     private string $createdAt;
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public function __construct(array $data)
     {
         $this->id = $data['id'] ?? '';

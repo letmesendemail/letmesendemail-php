@@ -7,6 +7,7 @@ namespace LetMeSendEmail\Resources;
 use LetMeSendEmail\Client;
 use LetMeSendEmail\Responses\ContactListResponse;
 use LetMeSendEmail\Responses\ContactResponse;
+use LetMeSendEmail\Responses\ContactUpdateResponse;
 use LetMeSendEmail\Responses\StatusResponse;
 
 final class ContactsResource
@@ -18,6 +19,10 @@ final class ContactsResource
         $this->client = $client;
     }
 
+    /**
+     * @param string[]|null $categories
+     * @param string[]|null $emailTopics
+     */
     public function create(
         string $email,
         ?string $firstName = null,
@@ -89,6 +94,10 @@ final class ContactsResource
         return new ContactResponse($data);
     }
 
+    /**
+     * @param string[]|null $categories
+     * @param string[]|null $emailTopics
+     */
     public function update(
         string $id,
         ?string $firstName = null,
@@ -99,7 +108,7 @@ final class ContactsResource
         ?array $emailTopics = null,
         ?bool $syncCategories = null,
         ?bool $syncEmailTopics = null,
-    ): ContactResponse {
+    ): ContactUpdateResponse {
         $body = [];
 
         if ($firstName !== null) {
@@ -129,7 +138,7 @@ final class ContactsResource
 
         $data = $this->client->request('PUT', '/contacts/' . $id, body: $body);
 
-        return new ContactResponse($data);
+        return new ContactUpdateResponse($data);
     }
 
     public function delete(string $id): StatusResponse

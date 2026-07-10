@@ -10,6 +10,9 @@ final class EmailTopicListResponse
     private array $items;
     private PaginationInfo $pagination;
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public function __construct(array $data)
     {
         $this->items = array_map(

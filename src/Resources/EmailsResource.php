@@ -5,6 +5,8 @@ declare(strict_types=1);
 namespace LetMeSendEmail\Resources;
 
 use LetMeSendEmail\Client;
+use LetMeSendEmail\Requests\Attachment;
+use LetMeSendEmail\Requests\TemplateVariable;
 use LetMeSendEmail\Responses\EmailListResponse;
 use LetMeSendEmail\Responses\EmailResponse;
 use LetMeSendEmail\Responses\VerifyEmailResponse;
@@ -18,6 +20,14 @@ final class EmailsResource
         $this->client = $client;
     }
 
+    /**
+     * @param string[] $to
+     * @param string[]|null $replyTo
+     * @param string[]|null $cc
+     * @param string[]|null $bcc
+     * @param array<string, string>|null $headers
+     * @param (Attachment|array<string, mixed>)[]|null $attachments
+     */
     public function send(
         string $from,
         array $to,
@@ -77,7 +87,12 @@ final class EmailsResource
         }
 
         if ($attachments !== null) {
-            $body['attachments'] = $attachments;
+            $body['attachments'] = array_map(function ($attachment) {
+                if ($attachment instanceof Attachment) {
+                    return $attachment->toArray();
+                }
+                return $attachment;
+            }, $attachments);
         }
 
         $requestHeaders = [];
@@ -90,6 +105,15 @@ final class EmailsResource
         return EmailResponse::fromSendResponse($data);
     }
 
+    /**
+     * @param string[] $to
+     * @param (TemplateVariable|array<string, mixed>)[]|null $templateVariables
+     * @param string[]|null $replyTo
+     * @param string[]|null $cc
+     * @param string[]|null $bcc
+     * @param array<string, string>|null $headers
+     * @param (Attachment|array<string, mixed>)[]|null $attachments
+     */
     public function sendWithTemplate(
         string $from,
         array $to,
@@ -121,7 +145,12 @@ final class EmailsResource
         }
 
         if ($templateVariables !== null) {
-            $body['template_variables'] = $templateVariables;
+            $body['template_variables'] = array_map(function ($variable) {
+                if ($variable instanceof TemplateVariable) {
+                    return $variable->toArray();
+                }
+                return $variable;
+            }, $templateVariables);
         }
 
         if ($eventName !== null) {
@@ -149,7 +178,12 @@ final class EmailsResource
         }
 
         if ($attachments !== null) {
-            $body['attachments'] = $attachments;
+            $body['attachments'] = array_map(function ($attachment) {
+                if ($attachment instanceof Attachment) {
+                    return $attachment->toArray();
+                }
+                return $attachment;
+            }, $attachments);
         }
 
         $requestHeaders = [];

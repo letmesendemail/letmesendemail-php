@@ -10,6 +10,9 @@ final class ContactCategoryResponse
     private string $name;
     private string $slug;
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public function __construct(array $data)
     {
         $this->id = $data['id'] ?? '';

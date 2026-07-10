@@ -6,13 +6,19 @@ namespace LetMeSendEmail\Exceptions;
 
 abstract class ApiException extends \RuntimeException
 {
-    private ?int $httpStatus = null;
-    private ?string $apiCode = null;
-    private array $validationErrors = [];
-    private array $headers = [];
-    private ?string $requestId = null;
-    private ?string $rawBody = null;
+    protected ?int $httpStatus = null;
+    protected ?string $apiCode = null;
+    /** @var array<string, mixed> */
+    protected array $validationErrors = [];
+    /** @var array<string, string> */
+    protected array $headers = [];
+    protected ?string $requestId = null;
+    protected ?string $rawBody = null;
 
+    /**
+     * @param array<string, mixed> $validationErrors
+     * @param array<string, string> $headers
+     */
     public static function fromResponse(
         string $message,
         int $httpStatus,
@@ -23,15 +29,7 @@ abstract class ApiException extends \RuntimeException
         ?string $rawBody = null,
         ?\Throwable $previous = null,
     ): static {
-        $exception = new static($message, $httpStatus, $previous);
-        $exception->httpStatus = $httpStatus;
-        $exception->apiCode = $apiCode;
-        $exception->validationErrors = $validationErrors;
-        $exception->headers = $headers;
-        $exception->requestId = $requestId;
-        $exception->rawBody = $rawBody;
-
-        return $exception;
+        throw new \BadMethodCallException('fromResponse must be called on a concrete exception class.');
     }
 
     public function getHttpStatus(): ?int
@@ -44,11 +42,17 @@ abstract class ApiException extends \RuntimeException
         return $this->apiCode;
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function getValidationErrors(): array
     {
         return $this->validationErrors;
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function getHeaders(): array
     {
         return $this->headers;

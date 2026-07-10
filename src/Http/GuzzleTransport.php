@@ -40,14 +40,14 @@ final class GuzzleTransport implements TransportInterface
 
             $response = $this->client->request($method, $uri, $guzzleOptions);
 
-            $status = $response->getStatusCode();
-            $headers = $response->getHeaders();
-            $body = json_decode((string) $response->getBody(), true);
+            $rawBody = (string) $response->getBody();
+            $body = json_decode($rawBody, true);
 
             return [
-                'status' => $status,
-                'headers' => $headers,
+                'status' => $response->getStatusCode(),
+                'headers' => $response->getHeaders(),
                 'body' => $body,
+                'rawBody' => $rawBody,
             ];
         } catch (GuzzleConnectException $e) {
             $message = $e->getMessage();
@@ -71,14 +71,14 @@ final class GuzzleTransport implements TransportInterface
         } catch (RequestException $e) {
             if ($e->hasResponse()) {
                 $response = $e->getResponse();
-                $status = $response->getStatusCode();
-                $headers = $response->getHeaders();
-                $body = json_decode((string) $response->getBody(), true);
+                $rawBody = (string) $response->getBody();
+                $body = json_decode($rawBody, true);
 
                 return [
-                    'status' => $status,
-                    'headers' => $headers,
+                    'status' => $response->getStatusCode(),
+                    'headers' => $response->getHeaders(),
                     'body' => $body,
+                    'rawBody' => $rawBody,
                 ];
             }
 

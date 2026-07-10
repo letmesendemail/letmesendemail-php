@@ -15,8 +15,6 @@ use LetMeSendEmail\Resources\EmailTopicsResource;
 
 final class LetMeSendEmail
 {
-    public const VERSION = '0.1.0';
-
     private Client $client;
 
     public function __construct(

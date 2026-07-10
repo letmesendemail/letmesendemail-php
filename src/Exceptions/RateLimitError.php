@@ -11,6 +11,10 @@ final class RateLimitError extends ApiException
     private ?int $remaining = null;
     private ?string $resetAt = null;
 
+    /**
+     * @param array<string, mixed> $validationErrors
+     * @param array<string, string> $headers
+     */
     public static function fromResponse(
         string $message,
         int $httpStatus,
@@ -21,31 +25,46 @@ final class RateLimitError extends ApiException
         ?string $rawBody = null,
         ?\Throwable $previous = null,
     ): static {
-        $exception = parent::fromResponse(
-            message: $message,
-            httpStatus: $httpStatus,
-            apiCode: $apiCode,
-            validationErrors: $validationErrors,
-            headers: $headers,
-            requestId: $requestId,
-            rawBody: $rawBody,
-            previous: $previous,
-        );
+        $exception = new self($message, $httpStatus, $previous);
+        $exception->httpStatus = $httpStatus;
+        $exception->apiCode = $apiCode;
+        $exception->validationErrors = $validationErrors;
+        $exception->headers = $headers;
+        $exception->requestId = $requestId;
+        $exception->rawBody = $rawBody;
 
-        if (isset($headers['Retry-After'][0])) {
-            $exception->retryAfter = (int) $headers['Retry-After'][0];
+        // Case-insensitive header lookup for rate-limit headers
+        $headersLower = [];
+        foreach ($headers as $headerKey => $headerValue) {
+            $headersLower[strtolower((string) $headerKey)] = $headerValue;
         }
 
-        if (isset($headers['X-RateLimit-Limit'][0])) {
-            $exception->limit = (int) $headers['X-RateLimit-Limit'][0];
+        $retryAfterValue = $headersLower['retry-after'] ?? null;
+        if ($retryAfterValue !== null) {
+            if (is_numeric($retryAfterValue)) {
+                $exception->retryAfter = (int) $retryAfterValue;
+            } else {
+                // HTTP-date format: Thu, 01 Dec 2026 12:00:00 GMT
+                $timestamp = @strtotime($retryAfterValue);
+                if ($timestamp !== false && $timestamp > time()) {
+                    $exception->retryAfter = $timestamp - (int) time();
+                }
+            }
         }
 
-        if (isset($headers['X-RateLimit-Remaining'][0])) {
-            $exception->remaining = (int) $headers['X-RateLimit-Remaining'][0];
+        $limitValue = $headersLower['x-ratelimit-limit'] ?? null;
+        if ($limitValue !== null) {
+            $exception->limit = (int) $limitValue;
         }
 
-        if (isset($headers['X-RateLimit-Reset'][0])) {
-            $exception->resetAt = $headers['X-RateLimit-Reset'][0];
+        $remainingValue = $headersLower['x-ratelimit-remaining'] ?? null;
+        if ($remainingValue !== null) {
+            $exception->remaining = (int) $remainingValue;
+        }
+
+        $resetValue = $headersLower['x-ratelimit-reset'] ?? null;
+        if ($resetValue !== null) {
+            $exception->resetAt = $resetValue;
         }
 
         return $exception;

@@ -2,7 +2,7 @@
 [![Tests](https://img.shields.io/github/actions/workflow/status/letmesendemail/letmesendemail-php/test-php.yml?label=tests&style=for-the-badge&labelColor=000000)](https://github.com/letmesendemail/letmesendemail-php/actions/workflows/test-php.yml)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/letmesendemail/letmesendemail-php?style=for-the-badge&labelColor=000000)](https://packagist.org/packages/letmesendemail/letmesendemail-php)
 [![Packagist Version](https://img.shields.io/packagist/v/letmesendemail/letmesendemail-php?style=for-the-badge&labelColor=000000)](https://packagist.org/packages/letmesendemail/letmesendemail-php)
-[![License](https://img.shields.io/github/license/letmesendemail/letmesendemail-php?color=9cf&style=for-the-badge&labelColor=000000&cache=v1)](https://github.com/letmesendemail/letmesendemail-php/blob/master/LICENSE)
+[![License](https://img.shields.io/github/license/letmesendemail/letmesendemail-php?color=9cf&style=for-the-badge&labelColor=000000&cache=v1)](LICENSE.md)
 
 The official PHP SDK for the [letmesend.email](https://letmesend.email/) API.
 
@@ -55,6 +55,7 @@ $client = new LetMeSendEmail(configuration: $config);
 | `apiKey` | — | Your letmesend.email API key |
 | `baseUrl` | `https://letmesend.email/api/v1` | API base URL override |
 | `timeout` | `30` | Request timeout in seconds |
+| `retries` | `0` | Maximum number of retry attempts |
 
 ## API Coverage
 
@@ -103,9 +104,42 @@ echo $email->getStatus();     // "pending_scan" or "accepted"
 print_r($email->getEmails()); // list of all recipient addresses
 ```
 
+### Attachments
+
+You can provide attachments as raw arrays or as `Attachment` objects:
+
+```php
+use LetMeSendEmail\Requests\Attachment;
+
+// From a URL (external file)
+$attachment = Attachment::fromPath(
+    name: 'report.pdf',
+    path: 'https://example.com/report.pdf',
+    contentId: 'optional-cid',
+    contentDisposition: 'attachment', // or 'inline'
+);
+
+// From base64 content
+$attachment = Attachment::fromContent(
+    name: 'data.txt',
+    content: base64_encode('Hello World'),
+    contentId: 'optional-cid',
+    contentDisposition: 'inline',
+);
+
+$email = $client->emails()->send(
+    from: 'Acme <hello@acme.com>',
+    to: ['person@example.com'],
+    subject: 'With attachment',
+    html: '<p>See attached</p>',
+    attachments: [$attachment],
+);
+```
+
 ### Send with a template
 
 ```php
+// Raw arrays:
 $email = $client->emails()->sendWithTemplate(
     from: 'Acme <hello@acme.com>',
     to: ['person@example.com'],
@@ -114,6 +148,22 @@ $email = $client->emails()->sendWithTemplate(
     templateVariables: [
         ['key' => 'USER_NAME', 'type' => 'string', 'value' => 'John'],
         ['key' => 'ORDER_NUMBER', 'type' => 'number', 'value' => 12345],
+    ],
+);
+```
+
+Or use `TemplateVariable` objects:
+
+```php
+use LetMeSendEmail\Requests\TemplateVariable;
+
+$email = $client->emails()->sendWithTemplate(
+    from: 'Acme <hello@acme.com>',
+    to: ['person@example.com'],
+    templateId: '01ARZ3NDEKTSV4RRFFQ69G5FAV',
+    templateVariables: [
+        new TemplateVariable('USER_NAME', 'string', 'John'),
+        new TemplateVariable('ORDER_NUMBER', 'number', 12345),
     ],
 );
 ```
@@ -180,8 +230,23 @@ $email = $client->emails()->get('01kvv5dv472evp42a60sy4p7zx');
 echo $email->getStatus();           // "sent", "queued", etc.
 echo $email->getSubject();          // email subject
 echo $email->getRecipientsCount();  // 1
-print_r($email->getRecipients());   // recipient details
-print_r($email->getAttachments());  // attachment details
+echo $email->getAttachmentsCount(); // 0
+
+// Typed recipient objects
+foreach ($email->getRecipients() as $recipient) {
+    echo $recipient->getEmailAddress(); // "koelpin.burdette@example.org"
+    echo $recipient->getStatus();       // "queued", "delivered", "bounced"
+    echo $recipient->getOpenCount();    // opens count
+    echo $recipient->getClickCount();   // clicks count
+}
+
+// Typed attachment objects
+foreach ($email->getAttachments() as $attachment) {
+    echo $attachment->getName();          // "I9wJnL1QeUOKnsgE.png"
+    echo $attachment->getMime();          // "image/png"
+    echo $attachment->getSize();          // 16174079
+    echo $attachment->getDownloadUrl();   // signed download URL
+}
 ```
 
 ## Domains
@@ -255,15 +320,17 @@ echo $contact->getFirstName(); // "Jalen"
 ### Update a contact
 
 ```php
-$contact = $client->contacts()->update(
+$result = $client->contacts()->update(
     id: '01kvtsch98rxyxwaxwx2fbpsbp',
     firstName: 'John',
     lastName: 'Doe',
     syncCategories: false,
 );
 
-echo $contact->getId(); // "01kvtsch98rxyxwaxwx2fbpsbp"
+echo $result->getId(); // "01kvtsch98rxyxwaxwx2fbpsbp"
 ```
+
+The `update()` method returns a `ContactUpdateResponse` which contains only the contact ID.
 
 ### Delete a contact
 
@@ -432,7 +499,7 @@ Error exceptions provide:
 
 ## Pagination
 
-List endpoints return an `EmailListResponse` with a `PaginationInfo` object:
+List endpoints return a response with a `PaginationInfo` object:
 
 ```php
 $list = $client->emails()->list(perPage: 10);
@@ -457,6 +524,36 @@ $list = $client->emails()->list(after: $cursor);
 // Before a specific item
 $list = $client->emails()->list(before: $cursor);
 ```
+
+## Retries
+
+The SDK can automatically retry idempotent requests on transient failures:
+
+```php
+$config = new Configuration(
+    apiKey: 'lms_live_...',
+    retries: 3,
+);
+
+$client = new LetMeSendEmail(configuration: $config);
+```
+
+### When retries happen
+
+- **GET, HEAD, OPTIONS, DELETE** requests are always retryable.
+- **POST, PUT, PATCH** requests are retryable only when an `Idempotency-Key` header is present.
+
+### What is retried
+
+- `NetworkError` and `TimeoutError` — connection or timeout failures.
+- HTTP 408, 429, 500, 502, 503, 504 — retryable server / rate-limit errors.
+
+### Backoff strategy
+
+- **Rate-limit (429):** Uses the `Retry-After` header (delta-seconds or HTTP-date), capped at 60 seconds.
+- **Other retryable errors:** Bounded exponential backoff with jitter starting at 100ms base delay.
+
+All delays are testable via the `SleeperInterface` (`LetMeSendEmail\Http\SleeperInterface`).
 
 ## Webhooks
 

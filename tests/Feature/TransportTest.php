@@ -62,10 +62,10 @@ test('guzzle transport returns response headers', function () {
 test('configuration base url override', function () {
     $config = new Configuration(
         apiKey: 'test_key',
-        baseUrl: 'https://custom.api.letmesend.email/v2',
+        baseUrl: 'https://custom.example.com/v2',
     );
 
-    expect($config->getBaseUrl())->toBe('https://custom.api.letmesend.email/v2');
+    expect($config->getBaseUrl())->toBe('https://custom.example.com/v2');
 });
 
 test('configuration timeout override', function () {

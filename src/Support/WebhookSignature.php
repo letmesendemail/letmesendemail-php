@@ -16,6 +16,10 @@ final class WebhookSignature
         'webhook-signature',
     ];
 
+    /**
+     * @param array<string, string|string[]> $headers
+     * @return array<string, mixed>
+     */
     public static function verify(
         string $payload,
         array $headers,
@@ -98,6 +102,7 @@ final class WebhookSignature
             throw WebhookVerificationException::fromReason('No matching webhook signature found.');
         }
 
+        /** @var array<string, mixed> $data */
         $data = json_decode($payload, true);
 
         if (!is_array($data)) {
@@ -107,6 +112,10 @@ final class WebhookSignature
         return $data;
     }
 
+    /**
+     * @param array<string, string|string[]> $headers
+     * @return array<string, string>
+     */
     private static function resolveHeaders(array $headers): array
     {
         $resolved = [];

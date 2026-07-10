@@ -13,9 +13,14 @@ final class ContactResponse
     private ?string $phone;
     private bool $isGloballyUnsubscribed;
     private string $createdAt;
+    /** @var string[] */
     private array $categories;
+    /** @var string[] */
     private array $emailTopics;
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public function __construct(array $data)
     {
         $this->id = $data['id'] ?? '';
@@ -64,11 +69,17 @@ final class ContactResponse
         return $this->createdAt;
     }
 
+    /**
+     * @return string[]
+     */
     public function getCategories(): array
     {
         return $this->categories;
     }
 
+    /**
+     * @return string[]
+     */
     public function getEmailTopics(): array
     {
         return $this->emailTopics;

@@ -4,17 +4,28 @@ declare(strict_types=1);
 
 use LetMeSendEmail\Client;
 use LetMeSendEmail\Configuration;
+use LetMeSendEmail\Exceptions\ApiError;
 use LetMeSendEmail\Exceptions\AuthenticationError;
 use LetMeSendEmail\Exceptions\NetworkError;
 use LetMeSendEmail\Exceptions\NotFoundError;
 use LetMeSendEmail\Exceptions\RateLimitError;
 use LetMeSendEmail\Exceptions\TimeoutError;
 use LetMeSendEmail\Exceptions\ValidationError;
+use LetMeSendEmail\Http\SleeperInterface;
 use LetMeSendEmail\Http\TransportInterface;
-use LetMeSendEmail\LetMeSendEmail;
 use Tests\TestCase;
 
 uses(TestCase::class);
+
+class TestSleeper implements SleeperInterface
+{
+    public array $delays = [];
+
+    public function sleep(int $milliseconds): void
+    {
+        $this->delays[] = $milliseconds;
+    }
+}
 
 beforeEach(function () {
     $this->config = new Configuration(apiKey: 'lms_live_test_key');
@@ -70,7 +81,7 @@ test('request sends user-agent header with package slug and version', function (
         ->shouldReceive('request')
         ->once()
         ->withArgs(function (string $method, string $uri, array $options) {
-            return $options['headers']['User-Agent'] === 'letmesendemail-php/' . LetMeSendEmail::VERSION;
+            return (bool) preg_match('/^letmesendemail-php\/.+/', $options['headers']['User-Agent']);
         })
         ->andReturn([
             'status' => 200,
@@ -307,4 +318,307 @@ test('transport timeout maps to TimeoutError', function () {
 
     expect(fn () => $this->client->request('GET', '/emails'))
         ->toThrow(TimeoutError::class);
+});
+
+// --- Retry tests ---
+
+test('retries on NetworkError with GET', function () {
+    $config = new Configuration(apiKey: 'lms_test', retries: 2);
+    $sleeper = new TestSleeper();
+    $client = new Client($config, $this->transport, $sleeper);
+
+    $this->transport
+        ->shouldReceive('request')
+        ->times(3)
+        ->andThrow(NetworkError::fromRequest('Connection refused.'));
+
+    expect(fn () => $client->request('GET', '/emails'))
+        ->toThrow(NetworkError::class);
+
+    expect($sleeper->delays)->toHaveCount(2);
+});
+
+test('retries on RateLimitError with Retry-After', function () {
+    $config = new Configuration(apiKey: 'lms_test', retries: 1);
+    $sleeper = new TestSleeper();
+    $client = new Client($config, $this->transport, $sleeper);
+
+    $this->transport
+        ->shouldReceive('request')
+        ->times(2)
+        ->andReturn(
+            [
+                'status' => 429,
+                'headers' => ['Retry-After' => ['5']],
+                'body' => ['name' => 'rate_limited', 'message' => 'Too fast'],
+            ],
+            [
+                'status' => 200,
+                'headers' => [],
+                'body' => ['id' => '123'],
+            ],
+        );
+
+    $result = $client->request('GET', '/emails');
+
+    expect($result)->toBe(['id' => '123']);
+    expect($sleeper->delays)->toHaveCount(1);
+    expect($sleeper->delays[0])->toBe(5000);
+});
+
+test('retries on 500 for idempotent GET', function () {
+    $config = new Configuration(apiKey: 'lms_test', retries: 1);
+    $sleeper = new TestSleeper();
+    $client = new Client($config, $this->transport, $sleeper);
+
+    $this->transport
+        ->shouldReceive('request')
+        ->times(2)
+        ->andReturn(
+            [
+                'status' => 500,
+                'headers' => [],
+                'body' => ['name' => 'server_error', 'message' => 'Internal error'],
+            ],
+            [
+                'status' => 200,
+                'headers' => [],
+                'body' => ['id' => '456'],
+            ],
+        );
+
+    $result = $client->request('GET', '/emails');
+
+    expect($result)->toBe(['id' => '456']);
+});
+
+test('does not retry non-idempotent POST without Idempotency-Key', function () {
+    $config = new Configuration(apiKey: 'lms_test', retries: 1);
+    $client = new Client($config, $this->transport, new TestSleeper());
+
+    $this->transport
+        ->shouldReceive('request')
+        ->once()
+        ->andReturn([
+            'status' => 500,
+            'headers' => [],
+            'body' => ['name' => 'server_error', 'message' => 'Internal error'],
+        ]);
+
+    expect(fn () => $client->request('POST', '/emails', body: ['key' => 'val']))
+        ->toThrow(ApiError::class);
+});
+
+test('retries idempotent POST with Idempotency-Key', function () {
+    $config = new Configuration(apiKey: 'lms_test', retries: 1);
+    $sleeper = new TestSleeper();
+    $client = new Client($config, $this->transport, $sleeper);
+
+    $this->transport
+        ->shouldReceive('request')
+        ->times(2)
+        ->andReturn(
+            [
+                'status' => 500,
+                'headers' => [],
+                'body' => ['name' => 'server_error', 'message' => 'Internal error'],
+            ],
+            [
+                'status' => 200,
+                'headers' => [],
+                'body' => ['id' => '789'],
+            ],
+        );
+
+    $result = $client->request('POST', '/emails', body: ['key' => 'val'], headers: ['Idempotency-Key' => 'idem123']);
+
+    expect($result)->toBe(['id' => '789']);
+});
+
+test('exhausts retries then throws', function () {
+    $config = new Configuration(apiKey: 'lms_test', retries: 2);
+    $sleeper = new TestSleeper();
+    $client = new Client($config, $this->transport, $sleeper);
+
+    $this->transport
+        ->shouldReceive('request')
+        ->times(3)
+        ->andReturn([
+            'status' => 500,
+            'headers' => [],
+            'body' => ['name' => 'server_error', 'message' => 'Server error'],
+        ]);
+
+    expect(fn () => $client->request('GET', '/emails'))
+        ->toThrow(ApiError::class);
+
+    expect($sleeper->delays)->toHaveCount(2);
+});
+
+test('detects Idempotency-Key case-insensitively', function () {
+    $config = new Configuration(apiKey: 'lms_test', retries: 1);
+    $sleeper = new TestSleeper();
+    $client = new Client($config, $this->transport, $sleeper);
+
+    $this->transport
+        ->shouldReceive('request')
+        ->times(2)
+        ->andReturn(
+            [
+                'status' => 500,
+                'headers' => [],
+                'body' => ['name' => 'server_error', 'message' => 'Internal error'],
+            ],
+            [
+                'status' => 200,
+                'headers' => [],
+                'body' => ['id' => 'abc'],
+            ],
+        );
+
+    $result = $client->request('POST', '/emails', body: ['key' => 'val'], headers: ['idempotency-key' => 'idem123']);
+
+    expect($result)->toBe(['id' => 'abc']);
+});
+
+test('malformed 2xx response throws ApiError', function () {
+    $this->transport
+        ->shouldReceive('request')
+        ->once()
+        ->andReturn([
+            'status' => 200,
+            'headers' => ['Content-Type' => 'application/json'],
+            'body' => '',
+        ]);
+
+    try {
+        $this->client->request('GET', '/emails');
+    } catch (ApiError $e) {
+        expect($e->getHttpStatus())->toBe(200);
+        expect($e->getMessage())->toBe('Malformed response body');
+        expect($e->getHeaders())->toHaveKey('Content-Type');
+
+        return;
+    }
+
+    $this->fail('Expected ApiError was not thrown.');
+});
+
+test('retry delays respect Retry-After delta-seconds', function () {
+    $config = new Configuration(apiKey: 'lms_test', retries: 1);
+    $sleeper = new TestSleeper();
+    $client = new Client($config, $this->transport, $sleeper);
+
+    $this->transport
+        ->shouldReceive('request')
+        ->times(2)
+        ->andReturn(
+            [
+                'status' => 429,
+                'headers' => ['Retry-After' => ['3']],
+                'body' => ['name' => 'rate_limited', 'message' => 'Too fast'],
+            ],
+            [
+                'status' => 200,
+                'headers' => [],
+                'body' => ['id' => 'xyz'],
+            ],
+        );
+
+    $result = $client->request('GET', '/emails');
+
+    expect($result)->toBe(['id' => 'xyz']);
+    expect($sleeper->delays)->toHaveCount(1);
+    expect($sleeper->delays[0])->toBe(3000);
+});
+
+test('retry delays respect Retry-After HTTP-date', function () {
+    $config = new Configuration(apiKey: 'lms_test', retries: 1);
+    $sleeper = new TestSleeper();
+    $client = new Client($config, $this->transport, $sleeper);
+
+    $futureTimestamp = time() + 60;
+    $futureDate = gmdate('D, d M Y H:i:s \G\M\T', $futureTimestamp);
+
+    $this->transport
+        ->shouldReceive('request')
+        ->times(2)
+        ->andReturn(
+            [
+                'status' => 429,
+                'headers' => ['Retry-After' => [$futureDate]],
+                'body' => ['name' => 'rate_limited', 'message' => 'Too fast'],
+            ],
+            [
+                'status' => 200,
+                'headers' => [],
+                'body' => ['id' => 'xyz'],
+            ],
+        );
+
+    $result = $client->request('GET', '/emails');
+
+    expect($sleeper->delays)->toHaveCount(1);
+    expect($sleeper->delays[0])->toBeGreaterThanOrEqual(58000);
+    expect($sleeper->delays[0])->toBeLessThanOrEqual(60000);
+});
+
+test('throws RateLimitError on 429 with missing Retry-After', function () {
+    $config = new Configuration(apiKey: 'lms_test', retries: 1);
+    $sleeper = new TestSleeper();
+    $client = new Client($config, $this->transport, $sleeper);
+
+    $this->transport
+        ->shouldReceive('request')
+        ->once()
+        ->andReturn([
+            'status' => 429,
+            'headers' => [],
+            'body' => ['name' => 'rate_limited', 'message' => 'Too fast'],
+        ]);
+
+    expect(fn () => $client->request('GET', '/emails'))
+        ->toThrow(RateLimitError::class);
+
+    expect($sleeper->delays)->toHaveCount(0);
+});
+
+test('throws RateLimitError on 429 with invalid Retry-After zero', function () {
+    $config = new Configuration(apiKey: 'lms_test', retries: 1);
+    $sleeper = new TestSleeper();
+    $client = new Client($config, $this->transport, $sleeper);
+
+    $this->transport
+        ->shouldReceive('request')
+        ->once()
+        ->andReturn([
+            'status' => 429,
+            'headers' => ['Retry-After' => ['0']],
+            'body' => ['name' => 'rate_limited', 'message' => 'Too fast'],
+        ]);
+
+    expect(fn () => $client->request('GET', '/emails'))
+        ->toThrow(RateLimitError::class);
+
+    expect($sleeper->delays)->toHaveCount(0);
+});
+
+test('throws RateLimitError on 429 with excessive Retry-After beyond max', function () {
+    $config = new Configuration(apiKey: 'lms_test', retries: 1);
+    $sleeper = new TestSleeper();
+    $client = new Client($config, $this->transport, $sleeper);
+
+    $this->transport
+        ->shouldReceive('request')
+        ->once()
+        ->andReturn([
+            'status' => 429,
+            'headers' => ['Retry-After' => ['301']],
+            'body' => ['name' => 'rate_limited', 'message' => 'Too fast'],
+        ]);
+
+    expect(fn () => $client->request('GET', '/emails'))
+        ->toThrow(RateLimitError::class);
+
+    expect($sleeper->delays)->toHaveCount(0);
 });

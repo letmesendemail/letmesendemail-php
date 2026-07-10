@@ -18,6 +18,9 @@ final class VerifyEmailResponse
     private bool $validSyntax;
     private ?string $belongsTo;
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public function __construct(array $data)
     {
         $this->email = $data['email'] ?? '';

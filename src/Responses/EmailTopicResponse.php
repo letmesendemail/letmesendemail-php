@@ -13,8 +13,12 @@ final class EmailTopicResponse
     private bool $autoSubscribe;
     private bool $public;
     private string $createdAt;
+    /** @var array<string, mixed>|null */
     private ?array $domain;
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public function __construct(array $data)
     {
         $this->id = $data['id'] ?? '';
@@ -62,6 +66,9 @@ final class EmailTopicResponse
         return $this->createdAt;
     }
 
+    /**
+     * @return array<string, mixed>|null
+     */
     public function getDomain(): ?array
     {
         return $this->domain;

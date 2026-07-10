@@ -11,6 +11,9 @@ final class PaginationInfo
     private int $fetched;
     private int $total;
 
+    /**
+     * @param array<string, mixed> $data
+     */
     public function __construct(array $data)
     {
         $this->hasMore = $data['has_more'] ?? false;

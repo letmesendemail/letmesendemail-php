@@ -16,7 +16,7 @@ $client = new LetMeSendEmail(apiKey: $apiKey);
 // Option 2: With custom configuration
 // $client = new LetMeSendEmail(configuration: new Configuration(
 //     apiKey: $apiKey,
-//     baseUrl: 'https://api.letmesend.email/v1',
+//     baseUrl: 'https://example.com/api/v2',
 //     timeout: 60,
 // ));
 
