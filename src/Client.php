@@ -102,10 +102,12 @@ final class Client
             return $retryAfter * 1000;
         }
 
-        $baseMs = 100 * (2 ** ($attempt - 1));
-        $jitterMs = (int) ($baseMs * (0.5 + (mt_rand() / mt_getrandmax()) * 0.5));
+        $clampedAttempt = min($attempt, 30);
+        $baseMs = 100 * (2 ** ($clampedAttempt - 1));
+        $jitterMultiplier = 0.75 + (mt_rand() / mt_getrandmax()) * 0.5;
+        $delayMs = (int) ($baseMs * $jitterMultiplier);
 
-        return $jitterMs;
+        return min($delayMs, self::MAX_RETRY_DELAY * 1000);
     }
 
     /**

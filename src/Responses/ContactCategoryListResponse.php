@@ -32,4 +32,15 @@ final class ContactCategoryListResponse
     {
         return $this->pagination;
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+            'data' => array_map(fn (ContactCategoryResponse $item) => $item->toArray(), $this->items()),
+            'pagination' => $this->pagination()->toArray(),
+        ];
+    }
 }

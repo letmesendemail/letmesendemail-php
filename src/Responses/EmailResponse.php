@@ -134,4 +134,27 @@ final class EmailResponse
     {
         return $this->duplicate;
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'status' => $this->getStatus(),
+            'subject' => $this->getSubject(),
+            'event_name' => $this->getEventName(),
+            'type' => $this->getType(),
+            'created_at' => $this->getCreatedAt(),
+            'sent_at' => $this->getSentAt(),
+            'recipients_count' => $this->getRecipientsCount(),
+            'attachments_count' => $this->getAttachmentsCount(),
+            'recipients' => array_map(fn (RecipientResponse $r) => $r->toArray(), $this->getRecipients()),
+            'attachments' => array_map(fn (EmailAttachmentResponse $a) => $a->toArray(), $this->getAttachments()),
+            'emails' => $this->getEmails(),
+            'restricted_emails' => $this->getRestrictedEmails(),
+            'duplicate' => $this->isDuplicate(),
+        ];
+    }
 }

@@ -73,4 +73,21 @@ final class EmailTopicResponse
     {
         return $this->domain;
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+            'slug' => $this->getSlug(),
+            'description' => $this->getDescription(),
+            'auto_subscribe' => $this->isAutoSubscribe(),
+            'public' => $this->isPublic(),
+            'created_at' => $this->getCreatedAt(),
+            'domain' => $this->getDomain(),
+        ];
+    }
 }

@@ -32,4 +32,15 @@ final class EmailListResponse
     {
         return $this->pagination;
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+            'data' => array_map(fn (EmailResponse $item) => $item->toArray(), $this->items()),
+            'pagination' => $this->pagination()->toArray(),
+        ];
+    }
 }

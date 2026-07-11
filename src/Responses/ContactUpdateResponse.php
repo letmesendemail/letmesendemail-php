@@ -20,4 +20,14 @@ final class ContactUpdateResponse
     {
         return $this->id;
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->getId(),
+        ];
+    }
 }

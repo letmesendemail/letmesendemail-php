@@ -122,4 +122,31 @@ final class RecipientResponse
     {
         return $this->sentAt;
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+            'type' => $this->getType(),
+            'status' => $this->getStatus(),
+            'email_address' => $this->getEmailAddress(),
+            'bounce_type' => $this->getBounceType(),
+            'bounce_reason' => $this->getBounceReason(),
+            'bounced_at' => $this->getBouncedAt(),
+            'complaint_type' => $this->getComplaintType(),
+            'complained_at' => $this->getComplainedAt(),
+            'is_suppressed' => $this->isSuppressed(),
+            'suppression_reason' => $this->getSuppressionReason(),
+            'opened_at' => $this->getOpenedAt(),
+            'open_count' => $this->getOpenCount(),
+            'clicked_at' => $this->getClickedAt(),
+            'click_count' => $this->getClickCount(),
+            'failed_at' => $this->getFailedAt(),
+            'error_message' => $this->getErrorMessage(),
+            'delivered_at' => $this->getDeliveredAt(),
+            'sent_at' => $this->getSentAt(),
+        ];
+    }
 }

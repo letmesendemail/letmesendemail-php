@@ -6,6 +6,12 @@
 
 The official PHP SDK for the [letmesend.email](https://letmesend.email/) API.
 
+## Full Documentation
+
+See the comprehensive [user manual](docs/docs.md) for complete documentation of
+every resource, configuration option, retry behavior, error handling, webhook
+verification, and detailed examples.
+
 ## Installation
 
 ```bash
@@ -17,7 +23,12 @@ composer require letmesendemail/letmesendemail-php
 ```php
 use LetMeSendEmail\LetMeSendEmail;
 
-$client = new LetMeSendEmail(apiKey: $_ENV['LETMESENDEMAIL_API_KEY']);
+$apiKey = getenv('LETMESENDEMAIL_API_KEY');
+if ($apiKey === false || $apiKey === '') {
+    throw new \RuntimeException('LETMESENDEMAIL_API_KEY is not set.');
+}
+
+$client = new LetMeSendEmail(apiKey: $apiKey);
 
 $email = $client->emails()->send(
     from: 'Acme <hello@acme.com>',
@@ -94,7 +105,7 @@ $email = $client->emails()->send(
         [
             'name' => 'report.pdf',
             'mime' => 'application/pdf',
-            'download_url' => 'https://...',
+            'path' => 'https://storage.example.com/report.pdf',
         ],
     ],
 );
@@ -215,11 +226,19 @@ $pagination = $list->pagination();
 echo $pagination->hasMore(); // true
 echo $pagination->getTotal(); // 100
 
-// Next page using cursor
-$list = $client->emails()->list(perPage: 20, after: 'cursor_from_previous_page');
+// Next page using the last item's ID
+if ($list->pagination()->hasMore() && count($list->items()) > 0) {
+    $items = $list->items();
+    $lastId = $items[count($items) - 1]->getId();
+    $nextPage = $client->emails()->list(perPage: 20, after: $lastId);
+}
 
-// Previous page using cursor
-$list = $client->emails()->list(perPage: 20, before: 'cursor_from_previous_page');
+// Previous page using the first item's ID (from a page other than the first)
+if (count($list->items()) > 0) {
+    $items = $list->items();
+    $firstId = $items[0]->getId();
+    $prevPage = $client->emails()->list(perPage: 20, before: $firstId);
+}
 ```
 
 ### Get a single email
@@ -518,11 +537,17 @@ $pag->getFetched(); // int
 Use cursor-based pagination:
 
 ```php
-// After a specific item
-$list = $client->emails()->list(after: $cursor);
+// Next page: use the last item's ID
+if ($list->pagination()->hasMore() && count($list->items()) > 0) {
+    $items = $list->items();
+    $nextList = $client->emails()->list(after: $items[count($items) - 1]->getId());
+}
 
-// Before a specific item
-$list = $client->emails()->list(before: $cursor);
+// Previous page: use the first item's ID (from a page other than the first)
+if (count($list->items()) > 0) {
+    $items = $list->items();
+    $prevList = $client->emails()->list(before: $items[0]->getId());
+}
 ```
 
 ## Retries
@@ -550,8 +575,8 @@ $client = new LetMeSendEmail(configuration: $config);
 
 ### Backoff strategy
 
-- **Rate-limit (429):** Uses the `Retry-After` header (delta-seconds or HTTP-date), capped at 60 seconds.
-- **Other retryable errors:** Bounded exponential backoff with jitter starting at 100ms base delay.
+- **Rate-limit (429):** Uses the `Retry-After` header (delta-seconds or HTTP-date), capped at 300 seconds.
+- **Other retryable errors:** Bounded exponential backoff with ±25% jitter starting at 100ms base delay. Each delay is capped at 300 seconds. Large attempt numbers are clamped to prevent overflow.
 
 All delays are testable via the `SleeperInterface` (`LetMeSendEmail\Http\SleeperInterface`).
 
@@ -561,31 +586,41 @@ Webhook signature verification is built in:
 
 ```php
 use LetMeSendEmail\Support\WebhookSignature;
+use LetMeSendEmail\Exceptions\WebhookVerificationException;
+use LetMeSendEmail\Exceptions\WebhookSigningException;
 
 $payload = file_get_contents('php://input');
+if ($payload === false) {
+    http_response_code(400);
+    echo 'Failed to read request body.';
+    exit;
+}
+
 $headers = getallheaders();
+if (!is_array($headers)) {
+    $headers = [];
+}
+
+$secret = getenv('LETMESENDEMAIL_WEBHOOK_SECRET');
+if ($secret === false || $secret === '') {
+    http_response_code(500);
+    echo 'Webhook secret is not configured.';
+    exit;
+}
 
 try {
     $event = WebhookSignature::verify(
         payload: $payload,
         headers: $headers,
-        secret: $_ENV['LETMESENDEMAIL_WEBHOOK_SECRET'],
+        secret: $secret,
         tolerance: 300,
     );
 
-    // $event contains the parsed webhook payload
-    switch ($event['event'] ?? '') {
-        case 'email.delivered':
-            // handle delivery
-            break;
-        case 'email.bounced':
-            // handle bounce
-            break;
-    }
-} catch (\LetMeSendEmail\Exceptions\WebhookVerificationException $e) {
+    // $event contains the verified payload as an associative array
+} catch (WebhookVerificationException $e) {
     http_response_code(400);
     echo 'Webhook verification failed: ' . $e->getMessage();
-} catch (\LetMeSendEmail\Exceptions\WebhookSigningException $e) {
+} catch (WebhookSigningException $e) {
     http_response_code(500);
     echo 'Webhook configuration error: ' . $e->getMessage();
 }

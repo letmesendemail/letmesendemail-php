@@ -32,4 +32,15 @@ final class DomainListResponse
     {
         return $this->pagination;
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+            'data' => array_map(fn (DomainResponse $item) => $item->toArray(), $this->items()),
+            'pagination' => $this->pagination()->toArray(),
+        ];
+    }
 }

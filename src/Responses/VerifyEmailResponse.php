@@ -90,4 +90,24 @@ final class VerifyEmailResponse
     {
         return $this->belongsTo;
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+            'email' => $this->getEmail(),
+            'score' => $this->getScore(),
+            'status' => $this->getStatus(),
+            'domain_exists' => $this->isDomainExists(),
+            'disposable' => $this->isDisposable(),
+            'role_based' => $this->isRoleBased(),
+            'has_mailbox' => $this->hasMailbox(),
+            'receive_email' => $this->canReceiveEmail(),
+            'mx_records' => $this->hasMxRecords(),
+            'valid_syntax' => $this->hasValidSyntax(),
+            'belongs_to' => $this->getBelongsTo(),
+        ];
+    }
 }

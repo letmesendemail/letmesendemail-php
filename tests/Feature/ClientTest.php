@@ -622,3 +622,90 @@ test('throws RateLimitError on 429 with excessive Retry-After beyond max', funct
 
     expect($sleeper->delays)->toHaveCount(0);
 });
+
+// --- Additional retry backoff tests ---
+
+test('first retry delay is within 75-125% jitter range', function () {
+    $config = new Configuration(apiKey: 'lms_test', retries: 3);
+    $sleeper = new TestSleeper();
+    $client = new Client($config, $this->transport, $sleeper);
+
+    $this->transport
+        ->shouldReceive('request')
+        ->times(4)
+        ->andThrow(NetworkError::fromRequest('Connection refused.'));
+
+    expect(fn () => $client->request('GET', '/emails'))
+        ->toThrow(NetworkError::class);
+
+    expect($sleeper->delays)->toHaveCount(3);
+
+    foreach ($sleeper->delays as $index => $delay) {
+        $attempt = $index + 1;
+        $baseMs = 100 * (2 ** ($attempt - 1));
+        $minExpected = (int) ($baseMs * 0.75);
+        $maxExpected = (int) ($baseMs * 1.25);
+
+        expect($delay)->toBeGreaterThanOrEqual($minExpected);
+        expect($delay)->toBeLessThanOrEqual($maxExpected);
+    }
+});
+
+test('retry delay is capped at 300 seconds', function () {
+    $config = new Configuration(apiKey: 'lms_test', retries: 1);
+    $sleeper = new TestSleeper();
+    $client = new Client($config, $this->transport, $sleeper);
+
+    $this->transport
+        ->shouldReceive('request')
+        ->times(2)
+        ->andThrow(NetworkError::fromRequest('Connection refused.'));
+
+    expect(fn () => $client->request('GET', '/emails'))
+        ->toThrow(NetworkError::class);
+
+    expect($sleeper->delays)->toHaveCount(1);
+    expect($sleeper->delays[0])->toBeLessThanOrEqual(300000);
+});
+
+test('sleeper is injected through LetMeSendEmail facade', function () {
+    $config = new Configuration(apiKey: 'lms_test', retries: 1);
+    $sleeper = new TestSleeper();
+
+    $letMeSendEmail = new \LetMeSendEmail\LetMeSendEmail(
+        configuration: $config,
+        transport: $this->transport,
+        sleeper: $sleeper,
+    );
+
+    $this->transport
+        ->shouldReceive('request')
+        ->times(2)
+        ->andThrow(\LetMeSendEmail\Exceptions\NetworkError::fromRequest('Connection refused.'));
+
+    expect(fn () => $letMeSendEmail->emails()->list())
+        ->toThrow(\LetMeSendEmail\Exceptions\NetworkError::class);
+
+    expect($sleeper->delays)->toHaveCount(1);
+});
+
+test('large attempt number is clamped to prevent overflow', function () {
+    $config = new Configuration(apiKey: 'lms_test', retries: 30);
+    $sleeper = new TestSleeper();
+    $client = new Client($config, $this->transport, $sleeper);
+
+    $this->transport
+        ->shouldReceive('request')
+        ->times(31)
+        ->andThrow(NetworkError::fromRequest('Connection refused.'));
+
+    expect(fn () => $client->request('GET', '/emails'))
+        ->toThrow(NetworkError::class);
+
+    expect($sleeper->delays)->toHaveCount(30);
+
+    // All delays should be capped at 300 seconds
+    foreach ($sleeper->delays as $delay) {
+        expect($delay)->toBeLessThanOrEqual(300000);
+    }
+});

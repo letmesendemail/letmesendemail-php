@@ -41,4 +41,17 @@ final class PaginationInfo
     {
         return $this->total;
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+            'has_more' => $this->hasMore(),
+            'per_page' => $this->getPerPage(),
+            'fetched' => $this->getFetched(),
+            'total' => $this->getTotal(),
+        ];
+    }
 }

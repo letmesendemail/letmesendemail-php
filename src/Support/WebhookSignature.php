@@ -38,7 +38,7 @@ final class WebhookSignature
 
         $timestamp = $resolved['webhook-timestamp'];
 
-        if (!ctype_digit($timestamp) && !(is_numeric($timestamp) && str_contains($timestamp, '.'))) {
+        if (!ctype_digit($timestamp)) {
             throw WebhookVerificationException::fromReason('Webhook timestamp is not numeric.');
         }
 
@@ -46,6 +46,12 @@ final class WebhookSignature
 
         if ($timestampInt <= 0) {
             throw WebhookVerificationException::fromReason('Webhook timestamp must be a positive integer.');
+        }
+
+        if ($tolerance < 0) {
+            throw WebhookSigningException::fromReason(
+                'Tolerance must be a non-negative integer, got ' . $tolerance . '.',
+            );
         }
 
         $now = time();
@@ -102,12 +108,18 @@ final class WebhookSignature
             throw WebhookVerificationException::fromReason('No matching webhook signature found.');
         }
 
-        /** @var array<string, mixed> $data */
-        $data = json_decode($payload, true);
+        $decoded = json_decode($payload);
 
-        if (!is_array($data)) {
+        if ($decoded === null && json_last_error() !== JSON_ERROR_NONE) {
             throw WebhookVerificationException::fromReason('Webhook payload is not valid JSON.');
         }
+
+        if (!$decoded instanceof \stdClass) {
+            throw WebhookVerificationException::fromReason('Webhook payload must be a JSON object.');
+        }
+
+        /** @var array<string, mixed> $data */
+        $data = json_decode($payload, true);
 
         return $data;
     }

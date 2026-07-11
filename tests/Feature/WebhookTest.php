@@ -295,3 +295,155 @@ test('handles header values passed as arrays', function () {
 
     expect($result)->toBe(['event' => 'email.delivered']);
 });
+
+// --- Additional webhook timestamp and JSON validation tests ---
+
+test('rejects decimal timestamp', function () {
+    $secret = base64_encode(random_bytes(32));
+
+    expect(fn () => WebhookSignature::verify(
+        payload: '{}',
+        headers: [
+            'webhook-id' => 'web_123',
+            'webhook-log-id' => 'web_log_123',
+            'webhook-timestamp' => '1234567890.5',
+            'webhook-signature' => 'v1,sig',
+        ],
+        secret: $secret,
+    ))->toThrow(WebhookVerificationException::class, 'Webhook timestamp is not numeric.');
+});
+
+test('rejects negative tolerance', function () {
+    $secret = base64_encode(random_bytes(32));
+    $timestamp = time();
+    $data = makeWebhookData(
+        payload: ['event' => 'email.sent'],
+        secret: $secret,
+        timestamp: $timestamp,
+    );
+
+    expect(fn () => WebhookSignature::verify(
+        payload: $data['payload'],
+        headers: $data['headers'],
+        secret: $secret,
+        tolerance: -1,
+    ))->toThrow(WebhookSigningException::class, 'Tolerance must be a non-negative integer');
+});
+
+test('rejects JSON array payload', function () {
+    $secret = base64_encode(random_bytes(32));
+    $timestamp = time();
+    $badPayload = json_encode([1, 2, 3]);
+
+    $rawSecret = $secret;
+    $decodedSecret = base64_decode($rawSecret);
+    $toSign = "web_123.web_log_123.{$timestamp}." . $badPayload;
+    $hexHash = hash_hmac('sha256', $toSign, $decodedSecret);
+    $signature = base64_encode(pack('H*', $hexHash));
+
+    $headers = [
+        'webhook-id' => 'web_123',
+        'webhook-log-id' => 'web_log_123',
+        'webhook-timestamp' => (string) $timestamp,
+        'webhook-signature' => "v1,{$signature}",
+    ];
+
+    expect(fn () => WebhookSignature::verify(
+        payload: $badPayload,
+        headers: $headers,
+        secret: $secret,
+    ))->toThrow(WebhookVerificationException::class, 'Webhook payload must be a JSON object.');
+});
+
+test('rejects JSON string payload', function () {
+    $secret = base64_encode(random_bytes(32));
+    $timestamp = time();
+    $badPayload = json_encode('just a string');
+
+    $rawSecret = $secret;
+    $decodedSecret = base64_decode($rawSecret);
+    $toSign = "web_123.web_log_123.{$timestamp}." . $badPayload;
+    $hexHash = hash_hmac('sha256', $toSign, $decodedSecret);
+    $signature = base64_encode(pack('H*', $hexHash));
+
+    $headers = [
+        'webhook-id' => 'web_123',
+        'webhook-log-id' => 'web_log_123',
+        'webhook-timestamp' => (string) $timestamp,
+        'webhook-signature' => "v1,{$signature}",
+    ];
+
+    expect(fn () => WebhookSignature::verify(
+        payload: $badPayload,
+        headers: $headers,
+        secret: $secret,
+    ))->toThrow(WebhookVerificationException::class, 'Webhook payload must be a JSON object.');
+});
+
+test('rejects JSON null payload', function () {
+    $secret = base64_encode(random_bytes(32));
+    $timestamp = time();
+    $badPayload = 'null';
+
+    $rawSecret = $secret;
+    $decodedSecret = base64_decode($rawSecret);
+    $toSign = "web_123.web_log_123.{$timestamp}." . $badPayload;
+    $hexHash = hash_hmac('sha256', $toSign, $decodedSecret);
+    $signature = base64_encode(pack('H*', $hexHash));
+
+    $headers = [
+        'webhook-id' => 'web_123',
+        'webhook-log-id' => 'web_log_123',
+        'webhook-timestamp' => (string) $timestamp,
+        'webhook-signature' => "v1,{$signature}",
+    ];
+
+    expect(fn () => WebhookSignature::verify(
+        payload: $badPayload,
+        headers: $headers,
+        secret: $secret,
+    ))->toThrow(WebhookVerificationException::class, 'Webhook payload must be a JSON object.');
+});
+
+test('accepts empty JSON object', function () {
+    $secret = base64_encode(random_bytes(32));
+    $timestamp = time();
+    $payload = '{}';
+
+    $rawSecret = $secret;
+    $decodedSecret = base64_decode($rawSecret);
+    $toSign = "web_123.web_log_123.{$timestamp}." . $payload;
+    $hexHash = hash_hmac('sha256', $toSign, $decodedSecret);
+    $signature = base64_encode(pack('H*', $hexHash));
+
+    $headers = [
+        'webhook-id' => 'web_123',
+        'webhook-log-id' => 'web_log_123',
+        'webhook-timestamp' => (string) $timestamp,
+        'webhook-signature' => "v1,{$signature}",
+    ];
+
+    $result = WebhookSignature::verify(
+        payload: $payload,
+        headers: $headers,
+        secret: $secret,
+    );
+
+    expect($result)->toBe([]);
+});
+
+test('accepts nested JSON object', function () {
+    $secret = base64_encode(random_bytes(32));
+    $data = makeWebhookData(
+        payload: ['event' => 'email.sent', 'data' => ['nested' => ['key' => 'value']]],
+        secret: $secret,
+    );
+
+    $result = WebhookSignature::verify(
+        payload: $data['payload'],
+        headers: $data['headers'],
+        secret: $secret,
+    );
+
+    expect($result)->toBe(['event' => 'email.sent', 'data' => ['nested' => ['key' => 'value']]]);
+});

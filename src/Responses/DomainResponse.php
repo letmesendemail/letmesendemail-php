@@ -41,4 +41,17 @@ final class DomainResponse
     {
         return $this->createdAt;
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'domain_name' => $this->getDomainName(),
+            'status' => $this->getStatus(),
+            'created_at' => $this->getCreatedAt(),
+        ];
+    }
 }

@@ -11,6 +11,7 @@ final class Attachment
     private ?string $content;
     private ?string $contentId;
     private ?string $contentDisposition;
+    private ?string $mime;
 
     private function __construct(
         string $name,
@@ -18,12 +19,14 @@ final class Attachment
         ?string $content = null,
         ?string $contentId = null,
         ?string $contentDisposition = null,
+        ?string $mime = null,
     ) {
         $this->name = $name;
         $this->path = $path;
         $this->content = $content;
         $this->contentId = $contentId;
         $this->contentDisposition = $contentDisposition;
+        $this->mime = $mime;
     }
 
     /**
@@ -34,8 +37,9 @@ final class Attachment
         string $path,
         ?string $contentId = null,
         ?string $contentDisposition = null,
+        ?string $mime = null,
     ): self {
-        return new self($name, path: $path, contentId: $contentId, contentDisposition: $contentDisposition);
+        return new self($name, path: $path, contentId: $contentId, contentDisposition: $contentDisposition, mime: $mime);
     }
 
     /**
@@ -46,12 +50,13 @@ final class Attachment
         string $content,
         ?string $contentId = null,
         ?string $contentDisposition = null,
+        ?string $mime = null,
     ): self {
-        return new self($name, content: $content, contentId: $contentId, contentDisposition: $contentDisposition);
+        return new self($name, content: $content, contentId: $contentId, contentDisposition: $contentDisposition, mime: $mime);
     }
 
     /**
-     * @return array{name: string, path?: string, content?: string, content_id?: string, content_disposition?: string}
+     * @return array{name: string, path?: string, content?: string, content_id?: string, content_disposition?: string, mime?: string}
      */
     public function toArray(): array
     {
@@ -71,6 +76,10 @@ final class Attachment
 
         if ($this->contentDisposition !== null) {
             $data['content_disposition'] = $this->contentDisposition;
+        }
+
+        if ($this->mime !== null) {
+            $data['mime'] = $this->mime;
         }
 
         return $data;

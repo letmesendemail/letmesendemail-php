@@ -84,4 +84,22 @@ final class ContactResponse
     {
         return $this->emailTopics;
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'email' => $this->getEmail(),
+            'first_name' => $this->getFirstName(),
+            'last_name' => $this->getLastName(),
+            'phone' => $this->getPhone(),
+            'is_globally_unsubscribed' => $this->isGloballyUnsubscribed(),
+            'created_at' => $this->getCreatedAt(),
+            'categories' => $this->getCategories(),
+            'email_topics' => $this->getEmailTopics(),
+        ];
+    }
 }

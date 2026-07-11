@@ -509,6 +509,71 @@ test('send with Attachment fromContent', function () {
     );
 });
 
+test('attachment with mime serializes mime field', function () {
+    $attachment = Attachment::fromPath(
+        name: 'report.pdf',
+        path: 'https://example.com/report.pdf',
+        contentId: 'cid123',
+        contentDisposition: 'attachment',
+        mime: 'application/pdf',
+    );
+
+    $this->transport
+        ->shouldReceive('request')
+        ->once()
+        ->withArgs(function (string $method, string $uri, array $options) {
+            $att = $options['body']['attachments'][0];
+
+            return $att['name'] === 'report.pdf'
+                && $att['path'] === 'https://example.com/report.pdf'
+                && $att['mime'] === 'application/pdf';
+        })
+        ->andReturn([
+            'status' => 200,
+            'headers' => [],
+            'body' => ['id' => 'email_123', 'status' => 'accepted', 'emails' => [], 'restricted_emails' => []],
+        ]);
+
+    $this->emails->send(
+        from: 'Test <test@test.com>',
+        to: ['test@test.com'],
+        subject: 'Test',
+        html: '<p>Test</p>',
+        attachments: [$attachment],
+    );
+});
+
+test('attachment without mime does not include mime field', function () {
+    $attachment = Attachment::fromPath(
+        name: 'report.pdf',
+        path: 'https://example.com/report.pdf',
+    );
+
+    $this->transport
+        ->shouldReceive('request')
+        ->once()
+        ->withArgs(function (string $method, string $uri, array $options) {
+            $att = $options['body']['attachments'][0];
+
+            return $att['name'] === 'report.pdf'
+                && $att['path'] === 'https://example.com/report.pdf'
+                && !isset($att['mime']);
+        })
+        ->andReturn([
+            'status' => 200,
+            'headers' => [],
+            'body' => ['id' => 'email_123', 'status' => 'accepted', 'emails' => [], 'restricted_emails' => []],
+        ]);
+
+    $this->emails->send(
+        from: 'Test <test@test.com>',
+        to: ['test@test.com'],
+        subject: 'Test',
+        html: '<p>Test</p>',
+        attachments: [$attachment],
+    );
+});
+
 test('sendWithTemplate serializes Attachment objects through toArray', function () {
     $attachment = Attachment::fromPath(
         name: 'invoice.pdf',

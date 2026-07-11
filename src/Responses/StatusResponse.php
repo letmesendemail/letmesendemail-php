@@ -27,4 +27,15 @@ final class StatusResponse
     {
         return $this->message;
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+            'status' => $this->getStatus(),
+            'message' => $this->getMessage(),
+        ];
+    }
 }

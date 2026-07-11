@@ -56,4 +56,20 @@ final class EmailAttachmentResponse
     {
         return $this->downloadUrl;
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+            'mime' => $this->getMime(),
+            'content_id' => $this->getContentId(),
+            'content_disposition' => $this->getContentDisposition(),
+            'size' => $this->getSize(),
+            'download_url' => $this->getDownloadUrl(),
+        ];
+    }
 }

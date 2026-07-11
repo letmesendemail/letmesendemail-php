@@ -6,6 +6,7 @@ namespace LetMeSendEmail;
 
 use GuzzleHttp\Client as GuzzleClient;
 use LetMeSendEmail\Http\GuzzleTransport;
+use LetMeSendEmail\Http\SleeperInterface;
 use LetMeSendEmail\Http\TransportInterface;
 use LetMeSendEmail\Resources\ContactCategoriesResource;
 use LetMeSendEmail\Resources\ContactsResource;
@@ -21,6 +22,7 @@ final class LetMeSendEmail
         ?string $apiKey = null,
         ?Configuration $configuration = null,
         ?TransportInterface $transport = null,
+        ?SleeperInterface $sleeper = null,
     ) {
         if ($configuration === null) {
             if ($apiKey === null) {
@@ -30,7 +32,7 @@ final class LetMeSendEmail
         }
 
         $transport ??= new GuzzleTransport(new GuzzleClient());
-        $this->client = new Client($configuration, $transport);
+        $this->client = new Client($configuration, $transport, $sleeper);
     }
 
     public function emails(): EmailsResource

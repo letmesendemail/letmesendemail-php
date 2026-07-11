@@ -34,4 +34,16 @@ final class ContactCategoryResponse
     {
         return $this->slug;
     }
+
+    /**
+     * @return array<string, mixed>
+     */
+    public function toArray(): array
+    {
+        return [
+            'id' => $this->getId(),
+            'name' => $this->getName(),
+            'slug' => $this->getSlug(),
+        ];
+    }
 }
